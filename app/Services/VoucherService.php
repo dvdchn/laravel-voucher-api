@@ -1,8 +1,10 @@
 <?php
 namespace App\Services;
 
+use App\Mail\WelcomeEmail;
 use App\Models\Voucher;
-use Illuminate\Support\Str;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class VoucherService
 {
@@ -10,16 +12,22 @@ class VoucherService
      * Create a unique voucher code for a given user.
      *
      * @param int $userId
-     * @return void
+     * @return Voucher
      */
-    public function createVoucherForUser(int $userId)
+    public function createVoucherForUser(int $userId): Voucher
     {
         $voucherCode = $this->generateUniqueVoucherCode();
 
-        Voucher::create([
+        return Voucher::create([
             'user_id' => $userId,
             'code' => $voucherCode,
         ]);
+    }
+
+    public function createVoucherForUserAndSendEmail(int $userId)
+    {
+        $voucher = $this->createVoucherForUser($userId);
+        $this->sendVoucherEmail($userId, $voucher->code);
     }
 
     /**
@@ -43,4 +51,11 @@ class VoucherService
     
         return $code;
     }
+
+    protected function sendVoucherEmail(int $userId, string $voucherCode): void
+    {
+        $user = User::find($userId);
+        Mail::to($user->email)->send(new WelcomeEmail($user, $voucherCode));
+    }
+
 }

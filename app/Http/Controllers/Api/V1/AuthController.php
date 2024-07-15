@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\BaseApiController;
 use App\Http\Requests\UserRegisterRequest;
-use App\Jobs\GenerateVoucherCode;
+use App\Jobs\SendWelcomeEmailJob;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,7 +23,7 @@ class AuthController extends BaseApiController
     {
         $user = User::create($request->validated());
 
-        GenerateVoucherCode::dispatch($user->id);
+        SendWelcomeEmailJob::dispatch($user->id);
 
         return $this->created($user, 'User registered successfully.', 201);
     }
