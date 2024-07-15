@@ -29,9 +29,17 @@ class VoucherService
      */
     protected function generateUniqueVoucherCode(): string
     {
+        $maxAttempts = 100;
+        $attempts = 0;
+    
         do {
             $code = strtoupper(substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 5));
-        } while (Voucher::where('code', $code)->exists());
+            $attempts++;
+        } while (Voucher::where('code', $code)->exists() && $attempts < $maxAttempts);
+    
+        if ($attempts >= $maxAttempts) {
+            throw new \Exception('Unable to generate a unique voucher code.');
+        }
     
         return $code;
     }
