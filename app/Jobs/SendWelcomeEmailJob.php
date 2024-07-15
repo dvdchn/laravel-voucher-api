@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class GenerateVoucherCode implements ShouldQueue
+class SendWelcomeEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -30,6 +30,6 @@ class GenerateVoucherCode implements ShouldQueue
      */
     public function handle(VoucherService $voucherService): void
     {
-        $voucherService->createVoucherForUser($this->userId);
+        $voucherService->createVoucherForUserAndSendEmail($this->userId);
     }
 }
