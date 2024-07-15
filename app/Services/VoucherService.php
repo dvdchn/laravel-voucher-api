@@ -14,8 +14,14 @@ class VoucherService
      * @param int $userId
      * @return Voucher
      */
-    public function createVoucherForUser(int $userId): Voucher
+    public function createVoucherForUser(int $userId): ?Voucher
     {
+        $voucherCount = Voucher::where('user_id', $userId)->count();
+        
+        if ($voucherCount >= 10) {
+            return null;
+        }
+        
         $voucherCode = $this->generateUniqueVoucherCode();
 
         return Voucher::create([
@@ -24,10 +30,51 @@ class VoucherService
         ]);
     }
 
+    /**
+     * Create a unique voucher code for a given user and send welcome email.
+     *
+     * @param int $userId
+     * @return Voucher
+     */
     public function createVoucherForUserAndSendEmail(int $userId)
     {
         $voucher = $this->createVoucherForUser($userId);
         $this->sendVoucherEmail($userId, $voucher->code);
+    }
+
+    /**
+     * Get all vouchers for a user.
+     *
+     * @param int $userId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getVouchersForUser(int $userId)
+    {
+        return Voucher::where('user_id', $userId)->get();
+    }
+
+    /**
+     * Get a voucher by ID for a user.
+     *
+     * @param int $userId
+     * @param int $voucherId
+     * @return Voucher|null
+     */
+    public function getVoucherByIdForUser(int $userId, int $voucherId)
+    {
+        return Voucher::where('user_id', $userId)->find($voucherId);
+    }
+
+    /**
+     * Delete a voucher for a user.
+     *
+     * @param int $userId
+     * @param int $voucherId
+     * @return bool
+     */
+    public function deleteVoucherForUser(int $userId, int $voucherId): bool
+    {
+        return Voucher::where('user_id', $userId)->where('id', $voucherId)->delete();
     }
 
     /**
