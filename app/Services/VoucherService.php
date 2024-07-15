@@ -14,9 +14,13 @@ class VoucherService
      * @param int $userId
      * @return Voucher
      */
-    public function createVoucherForUser(int $userId): Voucher
+    public function createVoucherForUser(int $userId): ?Voucher
     {
         $voucherCount = Voucher::where('user_id', $userId)->count();
+        
+        if ($voucherCount >= 10) {
+            return null;
+        }
         
         $voucherCode = $this->generateUniqueVoucherCode();
 
